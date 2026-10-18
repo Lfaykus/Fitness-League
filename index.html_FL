@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fitness League</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e11;--panel:#151920;--panel2:#1c212a;--line:#272e38;
+  --text:#eef1f4;--muted:#8b95a3;--accent:#c8ff3d;--accent-ink:#141a05;
+  --gold:#ffcf40;--silver:#c9d1db;--bronze:#d99560;--danger:#ff6060;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;padding-bottom:110px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,select{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.display{font-family:"Bebas Neue",Impact,sans-serif;letter-spacing:.02em;line-height:.95}
+.muted{color:var(--muted)}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px}
+
+/* sign in */
+#signin{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:20px;padding:24px}
+#signin h1{font-size:clamp(64px,16vw,120px);color:var(--accent)}
+#signin p{max-width:320px;line-height:1.5}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 22px;border-radius:999px;font-weight:700}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{border:1px solid var(--line);color:var(--muted);padding:8px 14px;font-weight:600;font-size:14px}
+
+/* header */
+header{position:sticky;top:0;z-index:5;background:rgba(12,14,17,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+.brand{font-size:30px;color:var(--accent)}
+.me{display:flex;align-items:center;gap:10px;font-size:14px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--panel2);object-fit:cover;flex:none;display:grid;place-items:center;font-weight:700;font-size:13px}
+.tabs{display:flex;gap:4px;padding-bottom:10px}
+.tab{padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px;color:var(--muted)}
+.tab.on{background:var(--panel2);color:var(--text)}
+
+/* week bar */
+.weekbar{display:flex;align-items:center;justify-content:space-between;margin:22px 0 6px}
+.weekbar .display{font-size:34px}
+.arrow{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);font-size:18px}
+.arrow:disabled{opacity:.25;cursor:default}
+.lock{text-align:center;font-size:13px;color:var(--muted);margin-bottom:18px}
+.lock b{color:var(--accent);font-weight:700}
+
+/* scoreboard */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;margin-bottom:12px;overflow:hidden}
+.row{display:grid;grid-template-columns:44px 40px 1fr auto;align-items:center;gap:12px;padding:16px;width:100%;text-align:left}
+.rank{font-size:34px;text-align:center}
+.r1 .rank{color:var(--gold)}.r2 .rank{color:var(--silver)}.r3 .rank{color:var(--bronze)}
+.r1{border-color:rgba(255,207,64,.45)}
+.name{font-weight:700;font-size:17px}
+.sub{font-size:13px;color:var(--muted);margin-top:2px}
+.pts{font-size:46px;text-align:right}
+.pts small{font-family:Inter;font-size:12px;color:var(--muted);letter-spacing:0;display:block}
+.bar{height:4px;background:var(--panel2);margin:0 16px 14px;border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.r1 .bar i{background:var(--gold)}
+.detail{border-top:1px solid var(--line);padding:16px;display:none}
+.card.open .detail{display:block}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.cat{background:var(--panel2);border-radius:12px;padding:10px;text-align:center}
+.cat .display{font-size:28px}
+.cat span{font-size:11px;color:var(--muted)}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px;text-align:center}
+.day{background:var(--panel2);border-radius:10px;padding:8px 0}
+.day span{display:block;font-size:11px;color:var(--muted)}
+.day b{font-family:"Bebas Neue";font-size:22px;font-weight:400}
+.day.zero b{color:#4a5260}
+.entry{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.entry:first-child{border-top:0}
+.entry .e-main{flex:1;min-width:0}
+.entry .e-sub{font-size:12px;color:var(--muted)}
+.entry .e-pts{font-weight:700;color:var(--accent);white-space:nowrap}
+.pr{display:inline-block;background:var(--gold);color:#2a1d00;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:6px;vertical-align:2px}
+.del{width:28px;height:28px;border-radius:50%;color:var(--muted);font-size:16px}
+.del:hover{background:var(--panel2);color:var(--danger)}
+.empty{text-align:center;color:var(--muted);padding:40px 0}
+
+/* season + rules tables */
+h2.display{font-size:40px;margin:24px 0 14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;text-align:left;padding:8px}
+td{padding:12px 8px;border-top:1px solid var(--line)}
+td.n{font-family:"Bebas Neue";font-size:24px}
+.rules li{margin:0 0 10px 18px;line-height:1.5}
+.note{font-size:12px;color:var(--muted)}
+
+/* log button + sheet */
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom));z-index:6;box-shadow:0 10px 30px rgba(200,255,61,.25);font-size:17px;padding:16px 34px}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10;display:none}
+.scrim.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;background:var(--panel);border-radius:22px 22px 0 0;border-top:1px solid var(--line);max-height:88vh;overflow:auto;padding:20px 16px calc(24px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .25s ease}
+.sheet.on{transform:none}
+.sheet-in{max-width:640px;margin:0 auto}
+.sheet h3{font-size:36px;margin-bottom:12px}
+.grp{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:14px 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:14px;font-weight:600}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip:disabled{opacity:.35;cursor:default}
+.field{margin-top:16px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+.inline{display:flex;align-items:center;gap:10px}
+.inline span{color:var(--muted);white-space:nowrap}
+.preview{display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding:14px 16px;background:var(--panel2);border-radius:14px}
+.preview .display{font-size:40px;color:var(--accent)}
+.actions{display:flex;gap:10px;margin-top:16px}
+.actions .btn{flex:1}
+.err{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;z-index:20;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (max-width:480px){.pts{font-size:38px}.row{grid-template-columns:34px 34px 1fr auto;gap:10px;padding:14px}.rank{font-size:28px}}
+</style>
+</head>
+<body>
+
+<div id="signin" hidden>
+  <h1 class="display">Fitness<br>League</h1>
+  <p class="muted">Log your workouts, learning and daily goals. Highest points by Sunday night wins the week.</p>
+  <button class="btn btn-primary" id="signinBtn">Sign in with Google</button>
+  <div class="err" id="signinErr"></div>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <div class="wrap">
+      <div class="hrow">
+        <div class="brand display">Fitness League</div>
+        <div class="me">
+          <button class="btn-ghost btn" id="nameBtn" title="Change your display name"></button>
+          <button class="btn-ghost btn" id="signoutBtn">Sign out</button>
+        </div>
+      </div>
+      <nav class="tabs">
+        <button class="tab on" data-tab="board">This week</button>
+        <button class="tab" data-tab="season">Season</button>
+        <button class="tab" data-tab="rules">Points</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="tab-board">
+      <div class="weekbar">
+        <button class="arrow" id="prevWk" aria-label="Previous week">‹</button>
+        <div class="display" id="wkLabel"></div>
+        <button class="arrow" id="nextWk" aria-label="Next week">›</button>
+      </div>
+      <div class="lock" id="lockLabel"></div>
+      <div id="board"></div>
+    </section>
+    <section id="tab-season" hidden>
+      <h2 class="display">Season standings</h2>
+      <div id="season"></div>
+    </section>
+    <section id="tab-rules" hidden>
+      <h2 class="display">How points work</h2>
+      <div id="rules"></div>
+    </section>
+  </main>
+
+  <button class="btn btn-primary fab" id="logBtn">+ Log activity</button>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-label="Log activity">
+  <div class="sheet-in">
+    <h3 class="display">Log activity</h3>
+    <div id="actChips"></div>
+    <div class="field" id="amtField">
+      <label for="amt">How much?</label>
+      <div class="inline"><input id="amt" type="number" inputmode="decimal" min="0"><span id="unit"></span></div>
+    </div>
+    <div class="field" id="noteField" hidden>
+      <label for="noteIn">What did you learn?</label>
+      <input id="noteIn" maxlength="80" placeholder="e.g. new piano song, juggling 3 balls">
+    </div>
+    <div class="field">
+      <label for="dateIn">Day</label>
+      <select id="dateIn"></select>
+    </div>
+    <div class="note" id="actNote" style="margin-top:10px"></div>
+    <div class="preview"><span class="muted">Points</span><span class="display" id="preview">+0</span></div>
+    <div class="err" id="logErr"></div>
+    <div class="actions">
+      <button class="btn btn-ghost" id="cancelLog">Cancel</button>
+      <button class="btn btn-primary" id="saveLog">Save</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, setDoc, addDoc, deleteDoc, onSnapshot }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { ACTIVITIES, ACT, CATEGORIES, PR_BONUS, scoreEntries, aggregate, seasonStandings,
+  weekStart, addDays, today, parseDate, dayIndex, basePoints, fmtPts } from "./scoring.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA0Zy1qUJMGsFfpK33OgO6hf5JxOPCUEiY",
+  authDomain: "fitness-league-ccaf6.firebaseapp.com",
+  projectId: "fitness-league-ccaf6",
+  storageBucket: "fitness-league-ccaf6.firebasestorage.app",
+  messagingSenderId: "111796351294",
+  appId: "1:111796351294:web:79bbe43e74dd62e8803c6f"
+};
+
+const fb = initializeApp(firebaseConfig);
+const auth = getAuth(fb);
+const db = getFirestore(fb);
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+const state = { me: null, users: {}, entries: [], view: weekStart(today()), open: null, tab: "board", pick: null };
+let unsub = [];
+
+// ---------- auth ----------
+$("signinBtn").onclick = async () => {
+  $("signinErr").textContent = "";
+  const provider = new GoogleAuthProvider();
+  try { await signInWithPopup(auth, provider); }
+  catch (e) {
+    if (["auth/popup-blocked","auth/operation-not-supported-in-this-environment","auth/cancelled-popup-request"].includes(e.code))
+      await signInWithRedirect(auth, provider);
+    else if (e.code !== "auth/popup-closed-by-user") $("signinErr").textContent = "Sign-in failed: " + e.code;
+  }
+};
+$("signoutBtn").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, async user => {
+  unsub.forEach(u => u()); unsub = [];
+  state.me = user;
+  $("signin").hidden = !!user;
+  $("app").hidden = !user;
+  if (!user) return;
+
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) {
+    await setDoc(ref, { name: (user.displayName || "Player").split(" ")[0], photo: user.photoURL || "", joined: Date.now() });
+  }
+  unsub.push(onSnapshot(collection(db, "users"), s => {
+    state.users = Object.fromEntries(s.docs.map(d => [d.id, d.data()]));
+    render();
+  }));
+  unsub.push(onSnapshot(collection(db, "entries"), s => {
+    state.entries = s.docs.map(d => ({ id: d.id, ...d.data() }));
+    render();
+  }, err => toast("Couldn't load entries: " + err.code)));
+});
+
+$("nameBtn").onclick = async () => {
+  const cur = state.users[state.me.uid]?.name || "";
+  const name = prompt("Display name", cur);
+  if (name == null) return;
+  const clean = name.trim().slice(0, 24);
+  if (!clean) return;
+  await setDoc(doc(db, "users", state.me.uid), { name: clean }, { merge: true });
+};
+
+// ---------- tabs + week nav ----------
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => {
+  state.tab = b.dataset.tab;
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("on", x === b));
+  ["board","season","rules"].forEach(t => $("tab-" + t).hidden = t !== state.tab);
+  $("logBtn").hidden = state.tab === "rules";
+  render();
+});
+$("prevWk").onclick = () => { state.view = addDays(state.view, -7); state.open = null; render(); };
+$("nextWk").onclick = () => { state.view = addDays(state.view, 7); state.open = null; render(); };
+
+// ---------- rendering ----------
+const nameOf = uid => state.users[uid]?.name || "Player";
+function avatar(uid) {
+  const u = state.users[uid];
+  if (u?.photo) return `<img class="avatar" src="${esc(u.photo)}" alt="" referrerpolicy="no-referrer">`;
+  return `<div class="avatar">${esc(nameOf(uid)[0] || "?")}</div>`;
+}
+function amountText(e) {
+  const a = ACT[e.activity];
+  if (a.flat != null) return a.daily ? "Hit it" : "Done";
+  const n = Number(e.amount);
+  return `${Number.isInteger(n) ? n : n.toFixed(2).replace(/0+$/,"")} ${a.unit}`;
+}
+function rangeLabel(wk) {
+  const s = parseDate(wk), e = parseDate(addDays(wk, 6));
+  const m = d => d.toLocaleString("en-US", { month: "short" });
+  return s.getMonth() === e.getMonth() ? `${m(s)} ${s.getDate()} – ${e.getDate()}` : `${m(s)} ${s.getDate()} – ${m(e)} ${e.getDate()}`;
+}
+
+function render() {
+  if (!state.me) return;
+  $("nameBtn").textContent = nameOf(state.me.uid) + " ✎";
+  const scores = scoreEntries(state.entries);
+  const weeks = aggregate(state.entries, scores);
+  const uids = Object.keys(state.users);
+  if (state.tab === "board") renderBoard(weeks, uids);
+  if (state.tab === "season") renderSeason(weeks, uids);
+  if (state.tab === "rules") renderRules();
+}
+
+function renderBoard(weeks, uids) {
+  const cur = weekStart(today());
+  const earliest = state.entries.reduce((m, e) => { const w = weekStart(e.date); return w < m ? w : m; }, cur);
+  $("prevWk").disabled = state.view <= earliest;
+  $("nextWk").disabled = state.view >= cur;
+  $("wkLabel").textContent = state.view === cur ? "This week · " + rangeLabel(state.view) : rangeLabel(state.view);
+  updateLock(weeks);
+
+  const wk = weeks[state.view] || {};
+  const rows = uids.map(uid => ({ uid, ...(wk[uid] || { total: 0, cats: {}, days: [0,0,0,0,0,0,0], entries: [] }) }))
+    .sort((a, b) => b.total - a.total);
+  if (!rows.length) { $("board").innerHTML = `<div class="empty">No players yet.</div>`; return; }
+  const top = Math.max(rows[0].total, 1);
+
+  let rank = 0, prev = null;
+  $("board").innerHTML = rows.map((r, i) => {
+    if (r.total !== prev) { rank = i + 1; prev = r.total; }
+    const behind = rows[0].total - r.total;
+    const sub = r.total === 0 ? "No points yet" : rank === 1 ? (rows.length > 1 && rows[1].total === r.total ? "Tied for 1st" : "Leading") : `${fmtPts(behind)} behind`;
+    const mine = r.uid === state.me.uid;
+    const entries = [...r.entries].sort((a, b) => (b.date + String(b.createdAt).padStart(15, "0")).localeCompare(a.date + String(a.createdAt).padStart(15, "0")));
+    return `
+    <div class="card r${rank} ${state.open === r.uid ? "open" : ""}" data-uid="${esc(r.uid)}">
+      <button class="row toggle">
+        <div class="rank display">${rank}</div>
+        ${avatar(r.uid)}
+        <div><div class="name">${esc(nameOf(r.uid))}${mine ? ' <span class="muted" style="font-weight:500;font-size:13px">(you)</span>' : ""}</div><div class="sub">${sub}</div></div>
+        <div class="pts display">${fmtPts(r.total)}<small>pts</small></div>
+      </button>
+      <div class="bar"><i style="width:${Math.max(0, r.total / top * 100)}%"></i></div>
+      <div class="detail">
+        <div class="cats">${CATEGORIES.map(c => `<div class="cat"><div class="display">${fmtPts(r.cats[c] || 0)}</div><span>${c}</span></div>`).join("")}</div>
+        <div class="days">${r.days.map((p, d) => `<div class="day ${p ? "" : "zero"}"><span>${DAYS[d]}</span><b>${fmtPts(p)}</b></div>`).join("")}</div>
+        <div>${entries.length ? entries.map(e => {
+          const a = ACT[e.activity];
+          return `<div class="entry">
+            <div>${a.icon}</div>
+            <div class="e-main"><div>${esc(a.label)} · ${esc(amountText(e))}${e.pr ? '<span class="pr">PR +' + PR_BONUS + '</span>' : ""}</div>
+            <div class="e-sub">${DAYS[dayIndex(e.date)]}${e.note ? " · " + esc(e.note) : ""}${a.daily && e.base === 0 ? " · duplicate, 0 pts" : ""}</div></div>
+            <div class="e-pts">+${fmtPts(e.points)}</div>
+            ${mine ? `<button class="del" data-del="${esc(e.id)}" aria-label="Delete entry">×</button>` : ""}
+          </div>`;
+        }).join("") : `<div class="muted" style="font-size:14px">Nothing logged this week.</div>`}</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  $("board").querySelectorAll(".toggle").forEach(b => b.onclick = () => {
+    const uid = b.closest(".card").dataset.uid;
+    state.open = state.open === uid ? null : uid;
+    render();
+  });
+  $("board").querySelectorAll("[data-del]").forEach(b => b.onclick = async ev => {
+    ev.stopPropagation();
+    if (!confirm("Delete this entry?")) return;
+    try { await deleteDoc(doc(db, "entries", b.dataset.del)); toast("Deleted"); }
+    catch (e) { toast("Couldn't delete: " + e.code); }
+  });
+}
+
+function updateLock(weeks) {
+  const cur = weekStart(today());
+  if (state.view !== cur) {
+    const wk = weeks[state.view] || {};
+    const totals = Object.entries(wk).map(([u, p]) => [u, p.total]).sort((a, b) => b[1] - a[1]);
+    $("lockLabel").innerHTML = totals.length && totals[0][1] > 0
+      ? `Final · Winner: <b>${esc(nameOf(totals[0][0]))}</b> with ${fmtPts(totals[0][1])} pts` : "Final";
+    return;
+  }
+  const end = parseDate(addDays(cur, 7)); // next Monday 00:00 local
+  let ms = Math.max(0, end - Date.now());
+  const d = Math.floor(ms / 864e5); ms -= d * 864e5;
+  const h = Math.floor(ms / 36e5); ms -= h * 36e5;
+  const m = Math.floor(ms / 6e4);
+  $("lockLabel").innerHTML = `Week locks in <b>${d ? d + "d " : ""}${h}h ${m}m</b> · Sunday 11:59 PM`;
+}
+setInterval(() => { if (state.me && state.tab === "board") render(); }, 30000);
+
+function renderSeason(weeks, uids) {
+  const cur = weekStart(today());
+  const rows = seasonStandings(weeks, uids, cur);
+  const done = Object.keys(weeks).filter(w => w < cur).length;
+  $("season").innerHTML = `
+    <p class="muted" style="margin-bottom:14px;font-size:14px">${done} finished week${done === 1 ? "" : "s"}. Ranked by weekly wins, then total points.</p>
+    <div class="card" style="padding:4px 8px"><table>
+      <thead><tr><th>#</th><th>Player</th><th>Wins</th><th>Total</th><th>Best week</th></tr></thead>
+      <tbody>${rows.map((r, i) => `<tr>
+        <td class="n">${i + 1}</td>
+        <td><div style="display:flex;align-items:center;gap:8px">${avatar(r.uid)}<b>${esc(nameOf(r.uid))}</b></div></td>
+        <td class="n" style="color:var(--gold)">${r.wins}</td>
+        <td class="n">${fmtPts(r.total)}</td>
+        <td class="n">${fmtPts(r.bestWeek)}</td></tr>`).join("")}</tbody>
+    </table></div>`;
+}
+
+function renderRules() {
+  const rate = a => a.flat != null ? `${fmtPts(a.flat)}${a.daily ? " per day" : ""}`
+    : a.id === "swim" ? "2 per 100 yards" : a.id === "pushups" ? "1 per 10 reps" : a.id === "pullups" ? "1 per 3 reps"
+    : a.id === "duolingo" ? "5 per 10 min" : a.id === "learning" ? "8 per 10 min" : `${a.rate} per ${a.unit.replace(/s$/, "")}`;
+  $("rules").innerHTML = `
+    <div class="card" style="padding:4px 8px"><table>
+      <thead><tr><th>Activity</th><th>Points</th></tr></thead>
+      <tbody>${ACTIVITIES.map(a => `<tr><td>${a.icon} <b>${esc(a.label)}</b>${a.note ? `<div class="note">${esc(a.note)}</div>` : ""}</td><td style="white-space:nowrap">${rate(a)}</td></tr>`).join("")}</tbody>
+    </table></div>
+    <h2 class="display" style="font-size:30px">Rules</h2>
+    <ul class="rules">
+      <li>Weeks run Monday to Sunday. Highest total at Sunday 11:59 PM wins the week.</li>
+      <li><b>Personal records: +${PR_BONUS}.</b> Beat your best single entry in run, swim, bike, pushups or pullups. Your first week doing an activity sets the baseline, so PRs start the week after. Max one PR per activity per week.</li>
+      <li><b>Murph:</b> log it as one entry. It already includes the run, pullups and pushups, plus a +10 bonus.</li>
+      <li>Daily goals count once per day.</li>
+      <li>No daily caps. Go crazy on the bike if you want.</li>
+      <li>Honor system. You can only add or delete your own entries.</li>
+    </ul>`;
+}
+
+// ---------- log sheet ----------
+function openSheet() {
+  state.pick = null;
+  $("amt").value = ""; $("noteIn").value = ""; $("logErr").textContent = "";
+  const t = today(), wk = weekStart(t);
+  const opts = [];
+  for (let d = t; d >= wk; d = addDays(d, -1)) {
+    const lbl = d === t ? "Today" : d === addDays(t, -1) ? "Yesterday" : DAYS[dayIndex(d)];
+    opts.push(`<option value="${d}">${lbl} · ${parseDate(d).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</option>`);
+  }
+  $("dateIn").innerHTML = opts.join("");
+  drawChips();
+  $("scrim").classList.add("on"); $("sheet").classList.add("on");
+}
+function closeSheet() { $("scrim").classList.remove("on"); $("sheet").classList.remove("on"); }
+function loggedDaily(id, date) {
+  return state.entries.some(e => e.uid === state.me.uid && e.activity === id && e.date === date);
+}
+function drawChips() {
+  const date = $("dateIn").value;
+  $("actChips").innerHTML = CATEGORIES.map(c => `<div class="grp">${c}</div><div class="chips">${
+    ACTIVITIES.filter(a => a.cat === c).map(a => {
+      const done = a.daily && loggedDaily(a.id, date);
+      return `<button class="chip ${state.pick === a.id ? "on" : ""}" data-act="${a.id}" ${done ? "disabled title='Already logged for this day'" : ""}>${a.icon} ${esc(a.label)}${done ? " ✓" : ""}</button>`;
+    }).join("")}</div>`).join("");
+  $("actChips").querySelectorAll("[data-act]").forEach(b => b.onclick = () => { state.pick = b.dataset.act; drawChips(); syncForm(); });
+  syncForm();
+}
+function syncForm() {
+  const a = ACT[state.pick];
+  $("amtField").hidden = !a || a.flat != null;
+  $("noteField").hidden = !a?.askNote;
+  $("unit").textContent = a?.unit || "";
+  if (a?.step) $("amt").step = a.step;
+  $("actNote").textContent = a?.note || "";
+  $("preview").textContent = "+" + fmtPts(a ? basePoints(a.id, $("amt").value) : 0);
+}
+$("amt").oninput = syncForm;
+$("dateIn").onchange = () => { if (state.pick && ACT[state.pick].daily && loggedDaily(state.pick, $("dateIn").value)) state.pick = null; drawChips(); };
+$("logBtn").onclick = openSheet;
+$("cancelLog").onclick = closeSheet;
+$("scrim").onclick = closeSheet;
+
+$("saveLog").onclick = async () => {
+  const a = ACT[state.pick];
+  $("logErr").textContent = "";
+  if (!a) { $("logErr").textContent = "Pick an activity."; return; }
+  let amount = 1;
+  if (a.flat == null) {
+    amount = Number($("amt").value);
+    if (!(amount > 0)) { $("logErr").textContent = `Enter ${a.unit}.`; return; }
+    if (amount > 100000) { $("logErr").textContent = "That's a lot. Double-check the number."; return; }
+  }
+  const date = $("dateIn").value;
+  if (a.daily && loggedDaily(a.id, date)) { $("logErr").textContent = "Already logged for that day."; return; }
+  const entry = { uid: state.me.uid, activity: a.id, amount, date, createdAt: Date.now() };
+  const note = $("noteIn").value.trim();
+  if (a.askNote && note) entry.note = note.slice(0, 80);
+  $("saveLog").disabled = true;
+  try {
+    await addDoc(collection(db, "entries"), entry);
+    closeSheet();
+    toast(`${a.icon} +${fmtPts(basePoints(a.id, amount))} pts`);
+    state.view = weekStart(today());
+  } catch (e) { $("logErr").textContent = "Couldn't save: " + e.code; }
+  finally { $("saveLog").disabled = false; }
+};
+
+let toastT;
+function toast(msg) { $("toast").textContent = msg; $("toast").classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => $("toast").classList.remove("on"), 2200); }
+</script>
+</body>
+</html>
