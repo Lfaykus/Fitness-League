@@ -151,7 +151,7 @@ td.win{color:var(--accent)}
 .emojis button.on{outline:2px solid var(--accent)}
 .actions{display:flex;gap:10px;margin-top:18px}
 .actions .btn{flex:1}
-.err{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px}
+.err{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px;line-height:1.5}
 .prof-head{display:flex;align-items:center;gap:16px;margin-bottom:16px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
 .stat{background:var(--panel2);border-radius:12px;padding:10px 4px;text-align:center}
@@ -261,7 +261,7 @@ td.win{color:var(--accent)}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, onAuthStateChanged, signOut }
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, doc, getDoc, setDoc, addDoc, deleteDoc, onSnapshot }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -297,14 +297,21 @@ const state = {
 let unsub = [];
 
 // ---------- auth ----------
+// In-app browsers (Instagram, Snapchat, TikTok, Messenger, etc.) can't do Google sign-in.
+const IN_APP = /Instagram|FBAN|FBAV|Snapchat|TikTok|musical_ly|Line\/|GSA\/|LinkedInApp|Twitter/i.test(navigator.userAgent);
+if (IN_APP) $("signinErr").innerHTML = "You're in an in-app browser, so Google sign-in won't work here.<br>Tap <b>⋯</b> or the share icon → <b>Open in Safari / Chrome</b>.";
+
 $("signinBtn").onclick = async () => {
   $("signinErr").textContent = "";
-  const provider = new GoogleAuthProvider();
-  try { await signInWithPopup(auth, provider); }
+  // Popup only: redirect sign-in breaks on iPhones because the site and the sign-in page are on different domains.
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); }
   catch (e) {
-    if (["auth/popup-blocked","auth/operation-not-supported-in-this-environment","auth/cancelled-popup-request"].includes(e.code))
-      await signInWithRedirect(auth, provider);
-    else if (e.code !== "auth/popup-closed-by-user") $("signinErr").textContent = "Sign-in failed: " + e.code;
+    if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") return;
+    if (e.code === "auth/popup-blocked")
+      $("signinErr").innerHTML = "Your browser blocked the sign-in popup.<br>iPhone: Settings → Safari → turn off <b>Block Pop-ups</b>, then try again.";
+    else if (e.code === "auth/operation-not-supported-in-this-environment" || IN_APP)
+      $("signinErr").innerHTML = "Sign-in doesn't work in this browser.<br>Open the link in <b>Safari</b> or <b>Chrome</b> directly.";
+    else $("signinErr").textContent = "Sign-in failed: " + e.code;
   }
 };
 
